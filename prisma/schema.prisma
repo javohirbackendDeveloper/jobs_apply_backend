@@ -1,0 +1,225 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+  User
+  Company
+  Admin
+}
+
+enum UserLevel{
+   Junior
+   Middle
+   Senior
+}
+
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  fullName String 
+  email String @unique
+  password String
+  profile_img String?
+  hard_skills String[]  @default([]) 
+  soft_skills String[]   @default([])
+  position String
+  about String?
+  location String?
+  experience Int?
+  role Role @default(User)
+  level UserLevel @default(Junior)
+  education String[] @default([])
+  projects String[]    @default([])  
+  certificates String[]  @default([])
+  languages String[]    @default([]) 
+  social_medias String[] @default([])
+  submitted_vacancies String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Education {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String  
+  degree String
+  field_of_study String
+  institution String
+  description  String?
+  startDate String
+  type_of_education String?
+  endDate String?
+}
+
+model ProjectsOfUser {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String  
+  project_title String
+  description String
+  used_technologies String[] @default([])
+}
+
+
+model SoftSkills {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String
+  type String[] @default([])
+}
+
+
+model HardSkills {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String
+  type String[]
+}
+
+
+model Certificates {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String
+  certificate_title String
+  description String?
+  startDate DateTime
+  endDate DateTime?
+}
+
+
+enum LanguageLevel {
+  beginner
+  pre_intermediate
+  intermediate
+  upper_intermediate
+  advanced
+  proficient
+  native
+}
+model Language {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String
+  level String
+  language String
+}
+
+
+model SocialMedia {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String
+  platform String
+  profile_link String
+}
+
+
+
+
+
+// COMPANY PART
+
+enum Level{
+   Junior
+   Middle
+   Senior
+}
+
+model Company {
+   id String @id @default(auto()) @map("_id") @db.ObjectId
+   email String @unique
+   password String
+   phone_number String
+   location String
+   company_name String @unique
+   role Role @default(Company)
+   company_logo String[] @default([])
+   workers_number Int?
+   organized_year Int?
+   social_networks String[] 
+   vacancies String[]  
+   projects String[]
+   partners String[]
+   hard_skill_tests String[]
+   company_description String?
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+}
+
+
+model SocialNetworks {
+   id String @id @default(auto()) @map("_id") @db.ObjectId
+   company_id String
+   platform String?
+   profile_link String
+}
+
+
+
+model Vacansies {
+   id String @id @default(auto()) @map("_id") @db.ObjectId
+   company_id String
+   position String
+   level Level?
+   submitted_candidates String[]
+   passedToHardSkills String[]
+   passedToSoftSkills String[]
+   hard_requirements String[] @default([])
+   soft_requirements String[] @default([])
+   work_start_hour String
+   work_end_hour String
+   description String?
+   language_requirements String[] @default([])
+  hard_skill_tests Int
+  soft_skill_tests Int
+}
+
+
+
+model Projects {
+   id String @id @default(auto()) @map("_id") @db.ObjectId
+   company_id String
+   project_title String
+   start_date DateTime
+   end_date DateTime @default(now())
+   project_price Float?
+   project_link String?
+   project_desc String?
+
+
+
+}
+
+
+model Partners {
+   id String @id @default(auto()) @map("_id") @db.ObjectId
+   company_id String
+   partner_name String
+   description String
+   
+}
+
+
+model hardSkillTests {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  hardSkillNumber Int
+  company_id  String  
+  tests       TestItem[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+   @@unique([company_id, hardSkillNumber])
+}
+
+model TestItem {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  question     String
+  options      String[]
+  correctAnswer Int
+  test         hardSkillTests @relation(fields: [hardSkillTestsId], references: [id])
+  hardSkillTestsId String @db.ObjectId
+}
