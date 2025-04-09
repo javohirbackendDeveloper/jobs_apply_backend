@@ -119,6 +119,11 @@ export class Vacancy {
 
   @Field(() => [String], { defaultValue: [] })
   language_requirements?: string[];
+
+  @Field({ defaultValue: Date.now() })
+  createdAt?: Date;
+  @Field({ nullable: true })
+  updatedAt?: Date;
 }
 
 @ObjectType()
@@ -188,6 +193,9 @@ export class Test {
   @Field()
   name: string;
 
+  @Field()
+  hardSkillNumber: number;
+
   @Field({ nullable: true })
   description?: string;
 
@@ -199,4 +207,28 @@ export class Test {
 
   @Field(() => [TestItem])
   tests: TestItem[];
+}
+
+@ObjectType()
+export class Message {
+  @Field()
+  id: string;
+
+  @Field()
+  senderId: string;
+
+  @Field()
+  receiverId: string;
+
+  @Field()
+  messageText: string;
+
+  @Field({ nullable: true })
+  imageUrl?: string;
+
+  @Field(() => Date)
+  createdAt: Date;
+
+  @Field(() => Date, { nullable: true })
+  updatedAt?: Date;
 }

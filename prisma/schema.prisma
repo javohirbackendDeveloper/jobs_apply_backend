@@ -41,11 +41,22 @@ model User {
   certificates String[]  @default([])
   languages String[]    @default([]) 
   social_medias String[] @default([])
+  messages String[] @default([])
   submitted_vacancies String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+
+model Message {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  senderId String  
+  receiverId String
+  messageText String
+  imageUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 model Education {
   id String @id @default(auto()) @map("_id") @db.ObjectId
@@ -143,11 +154,13 @@ model Company {
    vacancies String[]  
    projects String[]
    partners String[]
+   messages String[] @default([])
    hard_skill_tests String[]
    company_description String?
    createdAt DateTime @default(now())
    updatedAt DateTime @updatedAt
 }
+
 
 
 model SocialNetworks {
@@ -174,7 +187,8 @@ model Vacansies {
    description String?
    language_requirements String[] @default([])
   hard_skill_tests Int
-  soft_skill_tests Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 
@@ -206,7 +220,7 @@ model Partners {
 model hardSkillTests {
   id          String     @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  hardSkillNumber Int
+  hardSkillNumber Int 
   company_id  String  
   tests       TestItem[]
   createdAt   DateTime   @default(now())

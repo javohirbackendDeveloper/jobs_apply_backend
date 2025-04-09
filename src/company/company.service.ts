@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -24,11 +25,15 @@ import {
   HardSkillTestsDto,
   UpdateVacancyDto,
 } from './dto/announcement.dto';
+import { CompanyChats } from './types/chat.tyoes';
+import { SendMessageDto } from './dto/chat.dto';
+import { ChatGateway } from 'src/chat/chat.provider';
 
 @Injectable()
 export class CompanyService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly chatGateway: ChatGateway,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
@@ -108,6 +113,7 @@ export class CompanyService {
     const verifyToken = this.jwtService.verify(activationToken, {
       secret: this.configService.get<string>('ACTIVATION_SECRET'),
     });
+    console.log(verifyToken.activationCode, activationCode);
 
     if (verifyToken.activationCode !== activationCode) {
       throw new UnauthorizedException('This activation code is invalid');
@@ -197,7 +203,7 @@ export class CompanyService {
 
     const resetPasswordUrl =
       this.configService.get<string>('CLIENT_SIDE_URL') +
-      `/reset-password?verify=${forgotPasswordToken}`;
+      `/reset-password_company?verify=${forgotPasswordToken.token}`;
 
     await this.emailService.sendMailForCompany({
       email,
@@ -246,6 +252,7 @@ export class CompanyService {
         'You do not have this test with this test number ',
       );
     }
+
     const vacancy = await this.prisma.vacansies.create({
       data: {
         company_id: company.id,
@@ -266,6 +273,7 @@ export class CompanyService {
     if (!company_id) {
       throw new BadRequestException('Please login again to continue');
     }
+
     const company = await this.prisma.company.findUnique({
       where: { id: company_id },
     });
@@ -283,7 +291,7 @@ export class CompanyService {
 
   async getOneVacancy(vacansy_id: string) {
     if (!vacansy_id) {
-      throw new BadRequestException('Please give the company_id');
+      throw new BadRequestException('Please give the vacancy_id');
     }
     const vacancy = await this.prisma.vacansies.findUnique({
       where: { id: vacansy_id },
@@ -293,7 +301,11 @@ export class CompanyService {
       throw new BadRequestException('This vacancy not found');
     }
 
-    return vacancy;
+    const company = await this.prisma.company.findUnique({
+      where: { id: vacancy.company_id },
+    });
+
+    return { vacancy, company };
   }
 
   async updateVacancy(vacancyDto: UpdateVacancyDto, vacancy_id: string) {
@@ -360,5 +372,204 @@ export class CompanyService {
     });
 
     return { message: 'Hard skills added succesfully' };
+  }
+
+  // GET CANDIDATE'S DATAS WHO ARE APPLIED FOR VACANCY
+
+  async getSUbmittedCandidates(vacancyId: string) {
+    const vacancy = await this.prisma.vacansies.findUnique({
+      where: { id: vacancyId },
+    });
+
+    if (!vacancy) {
+      throw new NotFoundException('This vacancy not found with this id');
+    }
+
+    const submitted_candidates_id = vacancy.submitted_candidates;
+
+    const submitted_candidates = await this.prisma.user.findMany({
+      where: { id: { in: submitted_candidates_id } },
+    });
+
+    return { candidates: submitted_candidates };
+  }
+
+  async getPassedToHardSkill(vacancyId: string) {
+    const vacancy = await this.prisma.vacansies.findUnique({
+      where: { id: vacancyId },
+    });
+
+    if (!vacancy) {
+      throw new NotFoundException('This vacancy not found with this id');
+    }
+
+    const passed_hard_skills_candidates_id = vacancy.passedToHardSkills;
+
+    const passedToHardSkills = await this.prisma.user.findMany({
+      where: { id: { in: passed_hard_skills_candidates_id } },
+    });
+
+    return { candidates: passedToHardSkills };
+  }
+
+  async getPassedToSoftSkill(vacancyId: string) {
+    const vacancy = await this.prisma.vacansies.findUnique({
+      where: { id: vacancyId },
+    });
+
+    if (!vacancy) {
+      throw new NotFoundException('This vacancy not found with this id');
+    }
+
+    const passedToSoftSkillsId = vacancy.passedToSoftSkills;
+
+    const passedToSoftSkills = await this.prisma.user.findMany({
+      where: { id: { in: passedToSoftSkillsId } },
+    });
+
+    return { candidates: passedToSoftSkills };
+  }
+
+  // CHATTING WITH PASSED TO SOFT SKILL PART
+
+  async sendMessage(sendMessageDto: SendMessageDto) {
+    const { content, receiverId, senderId } = sendMessageDto;
+
+    const createdMessage = await this.prisma.message.create({
+      data: {
+        receiverId,
+        messageText: content,
+        senderId,
+      },
+    });
+
+    return { message: 'Message sent successfully' };
+  }
+
+  async getChats(currentPersonId: string) {
+    if (!currentPersonId) {
+      throw new UnauthorizedException('Please login again to continue');
+    }
+
+    const allChats = await this.prisma.message.findMany({
+      where: {
+        OR: [{ receiverId: currentPersonId }, { senderId: currentPersonId }],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const uniqueChatsMap = new Map<string, (typeof allChats)[0]>();
+
+    allChats.forEach((chat) => {
+      const otherUserId =
+        chat.receiverId === currentPersonId ? chat.senderId : chat.receiverId;
+
+      if (!uniqueChatsMap.has(otherUserId)) {
+        uniqueChatsMap.set(otherUserId, chat);
+      }
+    });
+
+    const uniqueChats = Array.from(uniqueChatsMap.values());
+
+    const chatsWithUsers = await Promise.all(
+      uniqueChats.map(async (chat) => {
+        let person;
+        if (chat.senderId !== currentPersonId) {
+          person = await this.prisma.user.findUnique({
+            where: { id: chat.senderId },
+          });
+          if (!person) {
+            person = await this.prisma.company.findUnique({
+              where: { id: chat.senderId },
+            });
+          }
+        } else if (chat.receiverId !== currentPersonId)
+          person = await this.prisma.user.findUnique({
+            where: { id: chat.receiverId },
+          });
+
+        if (!person) {
+          person = await this.prisma.company.findUnique({
+            where: { id: chat.receiverId },
+          });
+        }
+        return {
+          id: chat.id,
+          receiverId: chat.receiverId || '',
+          senderId: chat.senderId || '',
+          createdAt: chat.createdAt,
+          updatedAt: chat.updatedAt,
+
+          person: person
+            ? {
+                id: person.id,
+                fullName: person.fullName || person.company_name || '',
+                profile_img: person.profile_img || '',
+              }
+            : null,
+        };
+      }),
+    );
+
+    return {
+      companyChats: chatsWithUsers,
+    };
+  }
+
+  async getSelectedUser(selectedUserId: string) {
+    let selected;
+    selected = await this.prisma.user.findUnique({
+      where: { id: selectedUserId },
+    });
+
+    if (!selected) {
+      selected = await this.prisma.company.findUnique({
+        where: { id: selectedUserId },
+      });
+    }
+
+    if (!selected) {
+      throw new NotFoundException('This person not found with this id');
+    }
+    return {
+      selected: {
+        id: selected.id,
+        fullName: selected.fullName || selected.company_name,
+        profileImg: selected.profile_img || selected.company_logo || '',
+        position: selected?.position || '',
+      },
+    };
+  }
+
+  async getChatMessages(senderId: string, receiverId: string) {
+    if (!senderId || !receiverId) {
+      throw new NotFoundException('This id not found with this id');
+    }
+    const messages = await this.prisma.message.findMany({
+      where: {
+        OR: [
+          {
+            receiverId: senderId,
+            senderId: receiverId,
+          },
+          {
+            receiverId: receiverId,
+            senderId: senderId,
+          },
+        ],
+      },
+    });
+
+    return {
+      companyChats: messages.map((chat) => ({
+        id: chat.id,
+        receiverId: chat.receiverId || '',
+        senderId: chat.senderId || '',
+        messageText: chat?.messageText || '',
+        imageUrl: chat?.imageUrl || '',
+        createdAt: chat.createdAt,
+        updatedAt: chat.updatedAt || '',
+      })),
+    };
   }
 }

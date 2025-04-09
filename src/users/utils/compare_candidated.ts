@@ -28,7 +28,7 @@ export class Compare_candidates {
       },
       {
         secret: this.configService.get<string>('HARD_SKILL_TESTS_LINK'),
-        expiresIn: '5m',
+        expiresIn: '30m',
       },
     );
 
@@ -52,7 +52,7 @@ export class Compare_candidates {
       this.candidateData?.position.toLowerCase();
     allChecks++;
     if (!comparePosition) {
-      throw new BadRequestException('Vacancy and User positions is not math ');
+      response -= 5;
     } else {
       response++;
     }
@@ -134,17 +134,25 @@ export class Compare_candidates {
         },
       });
 
-      const token = this.generateToken(this.candidateData);
+      const generatedToken = await this.generateToken(this.candidateData);
 
       const hardSkillTestsUrl =
         this.configService.get<string>('CLIENT_SIDE_URL') +
-        `/hardSkillTests?solveTests=${token}`;
+        `/hardSkillTests?verify=${generatedToken.token}&vacancyId=${vacancy.id}`;
 
       await this.emailService.sendHardSkillUrl({
         subject: 'Pass hard skill test ',
         fullName: this.candidateData.fullName || this.candidateData.email,
         activationCode: hardSkillTestsUrl,
         template: './hard_skill_test',
+        email: this.candidateData.email,
+      });
+    } else {
+      await this.emailService.sendHardSkillUrl({
+        subject: 'Pass hard skill test ',
+        fullName: this.candidateData.fullName || this.candidateData.email,
+        activationCode: '',
+        template: './hard_skill_test_error',
         email: this.candidateData.email,
       });
     }

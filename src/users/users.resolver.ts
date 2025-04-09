@@ -38,7 +38,10 @@ import { LanguageDto } from './dtos/Language.type';
 import { AddLanguageResponse } from './types/language';
 import { UserSocialMediaDto } from './dtos/socialMedia';
 import { AddSocialMediaResponse } from './types/socialMedia.type';
-import { applyVacancyResponse } from './types/vacancy.type';
+import {
+  applyVacancyResponse,
+  GetVacansiesResponseForUsers,
+} from './types/vacancy.type';
 
 @Resolver()
 export class UsersResolver {
@@ -52,8 +55,9 @@ export class UsersResolver {
   @Mutation(() => RegisterResponse)
   async registerUser(
     @Args('registerDto') registerDto: RegisterDto,
-    @Context() context: { res: Response },
   ): Promise<RegisterResponse> {
+    console.log({ registerDto });
+
     if (
       !registerDto.fullName ||
       !registerDto.email ||
@@ -62,10 +66,7 @@ export class UsersResolver {
     ) {
       throw new BadRequestException('All field required');
     }
-    const { activation_token } = await this.usersService.register(
-      registerDto,
-      context.res,
-    );
+    const { activation_token } = await this.usersService.register(registerDto);
     return { activation_token };
   }
 
@@ -117,7 +118,7 @@ export class UsersResolver {
     return this.usersService.updateProfile(updateProfileDto, context.req);
   }
 
-  // EDUCATION
+  // // EDUCATION
 
   @Mutation(() => AddEducationResponse)
   @UseGuards(AuthGuard)
@@ -205,8 +206,9 @@ export class UsersResolver {
   @Query(() => GetHardSkillTestsRes)
   async getHardSkillTests(
     @Args('vacancyId') vacancyId: string,
+    @Args('hardSkillToken') hardSkillToken: string,
   ): Promise<GetHardSkillTestsRes> {
-    return this.usersService.getVacancyTests(vacancyId);
+    return this.usersService.getVacancyTests(vacancyId, hardSkillToken);
   }
 
   @Mutation(() => ResolveHardSkillTestRes)
@@ -214,13 +216,26 @@ export class UsersResolver {
   async resolveHardSkilltests(
     @Args('answersFromUser', { type: () => [Number] })
     answersFromUser: number[],
-    @Args('vacancyid') vacancyId: string,
+    @Args('vacancyId') vacancyId: string,
     @Context() context: { req: Request },
   ): Promise<ResolveHardSkillTestRes> {
     return this.usersService.checkTests(
       answersFromUser,
-      context.req,
       vacancyId,
+      context.req,
     );
+  }
+
+  @Query(() => GetVacansiesResponseForUsers)
+  async getVacansiesForUsers(): Promise<any> {
+    const vacansies = await this.usersService.getVacansies();
+    return { vacansies };
+  }
+
+  @Query(() => GetVacansiesResponseForUsers)
+  async getVacansiesByPosition(
+    @Args('position') position: string,
+  ): Promise<any> {
+    return this.usersService.searchVacansyByPosition(position);
   }
 }

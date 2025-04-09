@@ -51,7 +51,7 @@ export class UsersService {
 
   // USER AUTHENTICATION PART
 
-  async register(registerDto: RegisterDto, response: Response) {
+  async register(registerDto: RegisterDto) {
     const { fullName, email, password, position } = registerDto;
 
     const foundUser = await this.prisma.user.findUnique({
@@ -81,7 +81,7 @@ export class UsersService {
       activationCode,
     });
 
-    return { activation_token, response };
+    return { activation_token };
   }
 
   async activationTOken(user: UserData) {
@@ -107,7 +107,7 @@ export class UsersService {
       secret: this.configService.get<string>('ACTIVATION_SECRET'),
     });
 
-    if (verifyToken.activationCode !== activationCode) {
+    if (verifyToken.activationCode != activationCode) {
       throw new UnauthorizedException('This activation code is invalid');
     }
 
@@ -170,7 +170,7 @@ export class UsersService {
       },
       {
         secret: this.configService.get<string>('FORGOT_PASSWORD_SECRET'),
-        expiresIn: '5m',
+        expiresIn: '1d',
       },
     );
 
@@ -192,7 +192,7 @@ export class UsersService {
 
     const resetPasswordUrl =
       this.configService.get<string>('CLIENT_SIDE_URL') +
-      `/reset-password?verify=${forgotPasswordToken}`;
+      `/reset-password?verify=${forgotPasswordToken.token}`;
 
     await this.emailService.sendMail({
       email,
@@ -208,7 +208,7 @@ export class UsersService {
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const { password, activationToken } = resetPasswordDto;
 
-    const decode = this.jwtService.decode(activationToken);
+    const decode = await this.jwtService.decode(activationToken);
 
     if (!decode || decode.exp * 1000 < Date.now()) {
       throw new UnauthorizedException('Invalid or expired token');
@@ -389,6 +389,14 @@ export class UsersService {
 
   // APPLY FOR THE VACANSIES
 
+  async getVacansies() {
+    const allVacansies = await this.prisma.vacansies.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return allVacansies;
+  }
+
   async applyVacancy(vacancyId: string, req: Request) {
     const user = await this.prisma.user.findUnique({
       where: { id: req.user?.id },
@@ -407,7 +415,7 @@ export class UsersService {
     }
 
     if (vacancy.submitted_candidates.includes(user.id)) {
-      throw new BadRequestException('You already applied for this vacancy');
+      return { message: 'You already applied for this vacancy' };
     }
     const shareInfoToCompare = new Compare_candidates(
       this.prisma,
@@ -439,18 +447,50 @@ export class UsersService {
     };
   }
 
+  async searchVacansyByPosition(position: string) {
+    try {
+      if (!position || position.trim() === '') {
+        const allVacansies = await this.prisma.vacansies.findMany({
+          orderBy: { createdAt: 'desc' },
+        });
+        return { vacansies: allVacansies };
+      }
+
+      const vacansies = await this.prisma.vacansies.findMany({
+        where: {
+          position: {
+            contains: position,
+            mode: 'insensitive',
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return { vacansies };
+    } catch (error) {
+      console.error('Error searching vacancies:', error);
+      return {
+        vacansies: [],
+        error: 'Vakansiyalarni qidirishda xato yuz berdi',
+      };
+    }
+  }
   // SOLVING HARD SKILL TESTS
 
-  async getVacancyTests(vacancyId: string) {
-    const vacancyTestNumber = await this.prisma.vacansies.findUnique({
+  async getVacancyTests(vacancyId: string, hardSkillToken: string) {
+    const decodedToken = await this.jwtService.decode(hardSkillToken);
+    if (!decodedToken || decodedToken.exp * 1000 < Date.now()) {
+      throw new BadRequestException('Siz testlarni ishlashga kechikdingiz');
+    }
+
+    const vacancy = await this.prisma.vacansies.findUnique({
       where: { id: vacancyId },
     });
 
-    vacancyTestNumber?.hard_skill_tests;
     const testHeader = await this.prisma.hardSkillTests.findFirst({
       where: {
-        company_id: vacancyTestNumber?.company_id,
-        hardSkillNumber: vacancyTestNumber?.hard_skill_tests,
+        company_id: vacancy?.company_id,
+        hardSkillNumber: vacancy?.hard_skill_tests,
       },
     });
 
@@ -467,7 +507,7 @@ export class UsersService {
       throw new NotFoundException('This test items not found ');
     }
 
-    return { testItems };
+    return { testItems, vacancy };
   }
 
   async generateTokenForSoftSkillTests(user: User) {
@@ -477,17 +517,19 @@ export class UsersService {
       },
       {
         secret: this.configService.get<string>('SOFT_SKILL_TESTS_LINK'),
-        expiresIn: '5m',
+        expiresIn: '1d',
       },
     );
 
     return { token };
   }
 
-  async checkTests(answersFromUser: number[], req: Request, vacancyId: string) {
+  async checkTests(answersFromUser: number[], vacancyId: string, req: Request) {
     const user = req.user;
 
     if (!user) {
+      1;
+
       throw new UnauthorizedException('Please login again to continue');
     }
 
@@ -496,14 +538,17 @@ export class UsersService {
     });
 
     if (!vacancy) {
+      1;
       throw new NotFoundException('This vacancy  not found');
     }
 
     if (!vacancy.passedToHardSkills.includes(user.id)) {
+      1;
       throw new BadRequestException('You did not pass from first part');
     }
 
     if (vacancy.passedToSoftSkills.includes(user.id)) {
+      1;
       throw new BadRequestException('You already resolved this tests');
     }
     const hardSkillTest = await this.prisma.hardSkillTests.findFirst({
@@ -520,6 +565,7 @@ export class UsersService {
     });
 
     if (!testItems.length) {
+      1;
       throw new NotFoundException('This test items not found');
     }
 
@@ -534,13 +580,12 @@ export class UsersService {
         }
       }
     });
-    console.log({ answers });
 
-    const token = await this.generateTokenForSoftSkillTests(user);
+    const tokenData = await this.generateTokenForSoftSkillTests(user);
 
     const activationCode =
       this.configService.get<string>('CLIENT_SIDE_URL') +
-      `/softSkillTest?verify=${token}`;
+      `/softSkillTest?verify=${tokenData.token}`;
     if (answers < testItems.length * 0.7) {
       await this.emailService.hardSkillTestResponse({
         subject: 'Hard skill test response',

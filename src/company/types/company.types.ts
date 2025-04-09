@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Company, Vacancy } from '../entities/company.entity';
 import { UpdateVacancyDto } from '../dto/announcement.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @ObjectType()
 export class ErrorCompany {
@@ -90,6 +91,9 @@ export class GetOneVacancyResponse {
   @Field(() => Vacancy)
   vacancy: Vacancy | {};
 
+  @Field(() => Company)
+  company: Company | {};
+
   @Field(() => ErrorCompany, { nullable: true })
   error?: ErrorCompany;
 }
@@ -107,6 +111,18 @@ export class DeleteVacancyReponse {
 export class UpdateVacancyResponse {
   @Field(() => Vacancy, { nullable: true })
   vacancy: Vacancy;
+
+  @Field(() => ErrorCompany, { nullable: true })
+  error?: ErrorCompany;
+}
+
+@ObjectType()
+export class GetSubmittedUsersRes {
+  @Field(() => [User], {
+    nullable: true,
+    description: 'List of submitted users',
+  })
+  candidates?: User[];
 
   @Field(() => ErrorCompany, { nullable: true })
   error?: ErrorCompany;

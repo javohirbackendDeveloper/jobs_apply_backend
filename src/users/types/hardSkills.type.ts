@@ -36,9 +36,27 @@ class TestItemres {
 }
 
 @ObjectType()
+class HardSkillTest {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  hardSkillNumber: number;
+
+  @Field()
+  company_id: string;
+}
+
+@ObjectType()
 export class GetHardSkillTestsRes {
   @Field(() => [TestItemres], { nullable: true })
   testItems?: TestItemres[];
+
+  @Field(() => HardSkillTest, { nullable: true })
+  hardSkillTest?: HardSkillTest;
 
   @Field(() => HardSkillError, { nullable: true })
   error?: HardSkillError;

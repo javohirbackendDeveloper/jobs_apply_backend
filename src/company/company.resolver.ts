@@ -6,6 +6,7 @@ import {
   DeleteVacancyReponse,
   ForgotPasswordCompanyResponse,
   GetOneVacancyResponse,
+  GetSubmittedUsersRes,
   GetVacansiesResponse,
   LoginCompanyResponse,
   LogoutCompanyResponse,
@@ -30,6 +31,13 @@ import {
 } from './dto/announcement.dto';
 import { UsersService } from 'src/users/users.service';
 import { CreateHardSkillTestResponse } from './types/CreateTestResponse';
+import {
+  GetChatMessages,
+  GetCompanyChatsRes,
+  GetSelectedRes,
+  sendMessageRes,
+} from './types/chat.tyoes';
+import { SendMessageDto } from './dto/chat.dto';
 
 @Resolver()
 export class CompanyResolver {
@@ -65,7 +73,7 @@ export class CompanyResolver {
     return this.companyService.login(loginCompanyDto);
   }
 
-  @Mutation(() => LoginCompanyResponse)
+  @Query(() => LoginCompanyResponse)
   @UseGuards(CompanyGuard)
   async getLoggedCompany(
     @Context() context: { req: Request },
@@ -113,11 +121,8 @@ export class CompanyResolver {
   }
 
   @Query(() => GetOneVacancyResponse)
-  async getOneVacancy(
-    @Args('vacancy_id') vacancy_id: string,
-  ): Promise<GetOneVacancyResponse> {
-    const vacancy = await this.companyService.getOneVacancy(vacancy_id);
-    return { vacancy };
+  async getOneVacancy(@Args('vacancy_id') vacancy_id: string): Promise<any> {
+    return this.companyService.getOneVacancy(vacancy_id);
   }
 
   @Mutation(() => UpdateVacancyResponse)
@@ -151,5 +156,58 @@ export class CompanyResolver {
     @Context() context: { req: Request },
   ): Promise<CreateHardSkillTestResponse> {
     return this.companyService.addHardSkillTests(tests, context.req);
+  }
+
+  // GET CANDIDATE'S DATAS WHO ARE APPLIED FOR VACANCY
+
+  @Query(() => GetSubmittedUsersRes)
+  async getSubmittedCandidates(
+    @Args('vacancyId') vacancyId: string,
+  ): Promise<any> {
+    return this.companyService.getSUbmittedCandidates(vacancyId);
+  }
+
+  @Query(() => GetSubmittedUsersRes)
+  async getPassedToHardSkills(
+    @Args('vacancyId') vacancyId: string,
+  ): Promise<any> {
+    return this.companyService.getPassedToHardSkill(vacancyId);
+  }
+
+  @Query(() => GetSubmittedUsersRes)
+  async getPassedToSoftSkills(
+    @Args('vacancyId') vacancyId: string,
+  ): Promise<any> {
+    return this.companyService.getPassedToSoftSkill(vacancyId);
+  }
+
+  // CHATTING WITH CANDIDATES WHO PASSED TO SOFT SKILLS PART
+
+  @Mutation(() => sendMessageRes)
+  async sendMessageAsCompany(
+    @Args('sendMessageDto') sendMessageDto: SendMessageDto,
+  ): Promise<sendMessageRes> {
+    return this.companyService.sendMessage(sendMessageDto);
+  }
+  @Query(() => GetSelectedRes)
+  async getSelected(
+    @Args('selectedId') selectedId: string,
+  ): Promise<GetSelectedRes> {
+    return this.companyService.getSelectedUser(selectedId);
+  }
+
+  @Query(() => GetCompanyChatsRes)
+  async getCompanyChats(
+    @Args('currentPersonId') currentPersonId: string,
+  ): Promise<any> {
+    return this.companyService.getChats(currentPersonId);
+  }
+
+  @Query(() => GetChatMessages)
+  async getChatMessages(
+    @Args('senderId') senderId: string,
+    @Args('receiverId') receiverId: string,
+  ): Promise<GetChatMessages> {
+    return this.companyService.getChatMessages(senderId, receiverId);
   }
 }

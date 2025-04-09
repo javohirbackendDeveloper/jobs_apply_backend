@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { UserLevel } from '../entities/user.entity';
 
 @InputType()
 export class RegisterDto {
@@ -78,6 +79,9 @@ export class UpdateProfileDto {
 
   @Field({ nullable: true })
   about?: string;
+
+  @Field(() => UserLevel, { defaultValue: 'Junior' })
+  level?: UserLevel;
 
   @Field({ nullable: true })
   location?: string;
