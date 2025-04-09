@@ -23,8 +23,6 @@ import { EmailService } from '../email/email.service';
 import { TokenSender } from './utils/tokenSender';
 import { User } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
-import * as pdfParse from 'pdf-parse';
-import axios from 'axios';
 import { UserEducationDto } from './dtos/userEducation';
 import { ProjectOfUserDto } from './dtos/ProjectsOfUser';
 import { SoftSkillsDto } from './dtos/softSkills.dto';
