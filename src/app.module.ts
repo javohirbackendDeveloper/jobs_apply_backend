@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { EmailModule } from './email/email.module';
 import { CompanyModule } from './company/company.module';
-import { ChatModule } from './chat/chat.module';
+// import { ChatModule } from './chat/chat.module';
 import { join } from 'path';
 
 @Module({
@@ -37,7 +37,7 @@ import { join } from 'path';
     UsersModule,
     EmailModule,
     CompanyModule,
-    ChatModule,
+    // ChatModule,
   ],
 })
 export class AppModule {}

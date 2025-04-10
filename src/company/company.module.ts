@@ -5,11 +5,11 @@ import { PrismaService } from 'prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/email/email.service';
-import { ChatGateway } from 'src/chat/chat.provider';
-import { ChatModule } from 'src/chat/chat.module';
+// import { ChatGateway } from 'src/chat/chat.provider';
+// import { ChatModule } from 'src/chat/chat.module';
 
 @Module({
-  imports: [forwardRef(() => ChatModule)],
+  // imports: [forwardRef(() => ChatModule)],
   providers: [
     CompanyResolver,
     CompanyService,
@@ -17,7 +17,7 @@ import { ChatModule } from 'src/chat/chat.module';
     ConfigService,
     JwtService,
     EmailService,
-    ChatGateway,
+    // ChatGateway,
   ],
   exports: [CompanyService],
 })
