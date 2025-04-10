@@ -25,13 +25,8 @@ import { join } from 'path';
         numberScalarMode: 'integer',
         dateScalarMode: 'timestamp',
       },
-      uploads: false,
       playground: process.env.NODE_ENV === 'development',
       introspection: process.env.NODE_ENV === 'development',
-      cors: {
-        origin: process.env.ALLOWED_ORIGINS?.split(',') || true,
-        credentials: true,
-      },
       context: ({ req, res }) => ({ req, res }),
       formatError: (error) => ({
         message: error.message,
