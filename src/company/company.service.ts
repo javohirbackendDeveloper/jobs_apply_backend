@@ -27,13 +27,13 @@ import {
 } from './dto/announcement.dto';
 import { CompanyChats } from './types/chat.tyoes';
 import { SendMessageDto } from './dto/chat.dto';
-import { ChatGateway } from 'src/chat/chat.provider';
+// import { ChatGateway } from 'src/chat/chat.provider';
 
 @Injectable()
 export class CompanyService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly chatGateway: ChatGateway,
+    // // private readonly chatGateway: ChatGateway,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,

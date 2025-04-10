@@ -30,8 +30,7 @@ import { CertificateDto } from './dtos/Certificates.dto';
 import { LanguageDto } from './dtos/Language.type';
 import { UserSocialMediaDto } from './dtos/socialMedia';
 import { Compare_candidates } from './utils/compare_candidated';
-import { User } from './entities/user.entity';
-
+import { User } from '@prisma/client';
 @Injectable()
 export class UsersService {
   constructor(
