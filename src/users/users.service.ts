@@ -21,7 +21,6 @@ import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from '../email/email.service';
 import { TokenSender } from './utils/tokenSender';
-import { User } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 import { UserEducationDto } from './dtos/userEducation';
 import { ProjectOfUserDto } from './dtos/ProjectsOfUser';
@@ -31,6 +30,7 @@ import { CertificateDto } from './dtos/Certificates.dto';
 import { LanguageDto } from './dtos/Language.type';
 import { UserSocialMediaDto } from './dtos/socialMedia';
 import { Compare_candidates } from './utils/compare_candidated';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {

@@ -6,13 +6,12 @@ import { UsersModule } from './users/users.module';
 import { EmailModule } from './email/email.module';
 import { CompanyModule } from './company/company.module';
 import { ChatModule } from './chat/chat.module';
-import GraphQLUpload from 'graphql-upload';
 import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
       isGlobal: true,
       cache: true,
       expandVariables: true,
@@ -25,8 +24,8 @@ import { join } from 'path';
         numberScalarMode: 'integer',
         dateScalarMode: 'timestamp',
       },
-      playground: process.env.NODE_ENV === 'development',
-      introspection: process.env.NODE_ENV === 'development',
+      playground: process.env.NODE_ENV !== 'production',
+      introspection: process.env.NODE_ENV !== 'production',
       context: ({ req, res }) => ({ req, res }),
       formatError: (error) => ({
         message: error.message,
@@ -39,12 +38,6 @@ import { join } from 'path';
     EmailModule,
     CompanyModule,
     ChatModule,
-  ],
-  providers: [
-    {
-      provide: 'Upload',
-      useValue: GraphQLUpload,
-    },
   ],
 })
 export class AppModule {}
