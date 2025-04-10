@@ -1,0 +1,586 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Language {
+  id: String!
+  userId: String!
+  level: LanguageLevel!
+  language: String!
+}
+
+"""User language proficiency levels"""
+enum LanguageLevel {
+  BEGINNER
+  PRE_INTERMEDIATE
+  INTERMEDIATE
+  UPPER_INTERMEDIATE
+  ADVANCED
+  PROFICIENT
+  NATIVE
+}
+
+type SocialMedia {
+  id: String!
+  userId: String!
+  platform: String!
+  profile_link: String!
+}
+
+type User {
+  id: String!
+  fullName: String!
+  email: String!
+  level: UserLevel!
+  password: String!
+  profile_img: String
+  skills: [String!]
+  position: String!
+  location: String
+  experience: Int
+  education: [String!]
+  submitted_vacancies: [String!]
+  certificates: [String!]
+  projects: [String!]
+  languages: [Language!]
+  social_medias: [SocialMedia!]
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+}
+
+enum UserLevel {
+  Junior
+  Middle
+  Senior
+}
+
+"""
+`Date` type as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
+
+type ErrorType {
+  message: String
+  code: String
+}
+
+type RegisterResponse {
+  activation_token: String!
+  error: ErrorType
+}
+
+type ActivationResponse {
+  user: User!
+  error: ErrorType
+}
+
+type LoginResponse {
+  user: User
+  accessToken: String
+  refreshToken: String
+  error: ErrorType
+}
+
+type LogoutResponse {
+  message: String!
+}
+
+type ForgotPasswordResponse {
+  message: String!
+  error: ErrorType
+}
+
+type ResetPasswordResponse {
+  user: User!
+  error: ErrorType
+}
+
+type UpdateProfileResponse {
+  user: User!
+  error: ErrorType
+}
+
+type ErrorEducation {
+  message: String
+  code: String
+}
+
+type AddEducationResponse {
+  message: String
+  error: ErrorEducation
+}
+
+type ErrorProject {
+  message: String
+  code: String
+}
+
+type AddProjectResponse {
+  message: String
+  error: ErrorProject
+}
+
+type SoftSkillsError {
+  message: String
+  code: String
+}
+
+type AddSoftSkillsResponse {
+  message: String
+  error: SoftSkillsError
+}
+
+type HardSkillError {
+  message: String
+  code: String
+}
+
+type AddHardSkillResponse {
+  message: String
+  error: HardSkillError
+}
+
+type TestItemres {
+  id: String!
+  question: String!
+  options: [String!]!
+  correctAnswer: Int!
+  hardSkillTestsId: String!
+}
+
+type HardSkillTest {
+  id: String!
+  name: String!
+  hardSkillNumber: Int!
+  company_id: String!
+}
+
+type GetHardSkillTestsRes {
+  testItems: [TestItemres!]
+  hardSkillTest: HardSkillTest
+  error: HardSkillError
+}
+
+type ResolveHardSkillTestRes {
+  message: String
+  error: HardSkillError
+}
+
+type ErrorCertificate {
+  message: String
+  code: String
+}
+
+type AddCertificateResponse {
+  message: String
+  error: ErrorCertificate
+}
+
+type LanguageError {
+  message: String
+  code: String
+}
+
+type AddLanguageResponse {
+  message: String
+  error: LanguageError
+}
+
+type ErrorSocialMedia {
+  message: String
+  code: String
+}
+
+type AddSocialMediaResponse {
+  message: String
+  error: ErrorSocialMedia
+}
+
+type Company {
+  id: String!
+  email: String!
+  password: String!
+  phone_number: String!
+  location: String!
+  company_name: String!
+  role: Role!
+  company_logo: [String!]
+  workers_number: Int
+  organized_year: Int
+  social_networks: [String!]
+  vacancies: [String!]
+  projects: [String!]
+  partners: [String!]
+  company_description: String
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+}
+
+enum Role {
+  Company
+  Admin
+}
+
+type Vacancy {
+  id: String!
+  company_id: String!
+  position: String!
+  level: Level
+  hard_requirements: [String!]!
+  soft_requirements: [String!]!
+  work_start_hour: String!
+  work_end_hour: String!
+  description: String
+  language_requirements: [String!]!
+  createdAt: Timestamp!
+  updatedAt: Timestamp
+}
+
+enum Level {
+  Junior
+  Middle
+  Senior
+}
+
+type TestItem {
+  question: String!
+  options: [String!]!
+  correctAnswer: Int!
+}
+
+type ErrorVacancy {
+  message: String
+  code: String
+}
+
+type applyVacancyResponse {
+  message: String
+  error: ErrorVacancy
+}
+
+type GetVacansiesResponseForUsers {
+  vacansies: [Vacancy!]
+  error: ErrorVacancy
+}
+
+type ErrorCompany {
+  message: String
+  code: String
+}
+
+type RegisterCompanyRes {
+  activationToken: String!
+  error: ErrorCompany
+}
+
+type ActivationCompanyResponse {
+  company: Company!
+  error: ErrorCompany
+}
+
+type LoginCompanyResponse {
+  company: Company
+  accessToken: String
+  refreshToken: String
+  error: ErrorCompany
+}
+
+type LogoutCompanyResponse {
+  message: String!
+}
+
+type ForgotPasswordCompanyResponse {
+  message: String!
+  error: ErrorCompany
+}
+
+type ResetPasswordCompanyResponse {
+  company: Company!
+  error: ErrorCompany
+}
+
+type CreateVacansyResponse {
+  message: String!
+  error: ErrorCompany
+}
+
+type GetVacansiesResponse {
+  vacansies: [Vacancy!]!
+  error: ErrorCompany
+}
+
+type GetOneVacancyResponse {
+  vacancy: Vacancy!
+  company: Company!
+  error: ErrorCompany
+}
+
+type DeleteVacancyReponse {
+  message: String!
+  error: ErrorCompany
+}
+
+type UpdateVacancyResponse {
+  vacancy: Vacancy
+  error: ErrorCompany
+}
+
+type GetSubmittedUsersRes {
+  """List of submitted users"""
+  candidates: [User!]
+  error: ErrorCompany
+}
+
+type ErrorCreateHardSkillTest {
+  message: String
+  code: String
+}
+
+type CreateHardSkillTestResponse {
+  message: String!
+  error: ErrorCreateHardSkillTest
+}
+
+type ErrorChat {
+  message: String
+  code: String
+}
+
+type sendMessageRes {
+  message: String!
+  error: ErrorChat
+}
+
+type Person {
+  fullName: String!
+  profile_img: String
+  id: String!
+}
+
+type CompanyChats {
+  id: String!
+  receiverId: String!
+  senderId: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp
+  person: Person
+}
+
+type GetCompanyChatsRes {
+  companyChats: [CompanyChats!]
+  receiver: [Person!]
+  error: ErrorChat
+}
+
+type Selected {
+  id: String!
+  fullName: String!
+  position: String
+  profile_img: String
+}
+
+type GetSelectedRes {
+  selected: Selected
+  error: ErrorChat
+}
+
+type ChatMessageItems {
+  id: String!
+  senderId: String!
+  receiverId: String!
+  messageText: String!
+  imageUrl: String
+  createdAt: Timestamp!
+  updatedAt: Timestamp
+}
+
+type GetChatMessages {
+  companyChats: [ChatMessageItems!]
+  error: ErrorChat
+}
+
+type Query {
+  hello: String!
+  getLoggedInUser: LoginResponse!
+  logout: LogoutResponse!
+  getHardSkillTests(vacancyId: String!, hardSkillToken: String!): GetHardSkillTestsRes!
+  getVacansiesForUsers: GetVacansiesResponseForUsers!
+  getVacansiesByPosition(position: String!): GetVacansiesResponseForUsers!
+  getLoggedCompany: LoginCompanyResponse!
+  getVacansies(company_id: String!): GetVacansiesResponse!
+  getOneVacancy(vacancy_id: String!): GetOneVacancyResponse!
+  getSubmittedCandidates(vacancyId: String!): GetSubmittedUsersRes!
+  getPassedToHardSkills(vacancyId: String!): GetSubmittedUsersRes!
+  getPassedToSoftSkills(vacancyId: String!): GetSubmittedUsersRes!
+  getSelected(selectedId: String!): GetSelectedRes!
+  getCompanyChats(currentPersonId: String!): GetCompanyChatsRes!
+  getChatMessages(senderId: String!, receiverId: String!): GetChatMessages!
+}
+
+type Mutation {
+  registerUser(registerDto: RegisterDto!): RegisterResponse!
+  activateUser(activationDto: ActivationDto!): ActivationResponse!
+  login(loginDto: LoginDto!): LoginResponse!
+  forgotPassword(forgotPasswordDto: ForgotPasswordDto!): ForgotPasswordResponse!
+  resetPassword(resetPasswordDto: ResetPasswordDto!): ResetPasswordResponse!
+  updateProfile(updateProfileDto: UpdateProfileDto!): UpdateProfileResponse!
+  addEducation(addEducation: UserEducationDto!): AddEducationResponse!
+  addProject(addProjectDto: ProjectOfUserDto!): AddProjectResponse!
+  addSoftSkill(addSoftSkillDto: SoftSkillsDto!): AddSoftSkillsResponse!
+  addHardSkill(addHardSkillDto: HardSkillDto!): AddHardSkillResponse!
+  addCertificate(addCertificateDto: CertificateDto!): AddCertificateResponse!
+  addLanguage(addLanguageDto: LanguageDto!): AddLanguageResponse!
+  addSocialMedia(addSocialMediaDto: UserSocialMediaDto!): AddSocialMediaResponse!
+  applyVacancy(vacancyId: String!): applyVacancyResponse!
+  resolveHardSkilltests(answersFromUser: [Int!]!, vacancyId: String!): ResolveHardSkillTestRes!
+  registerCompany(registerCompanyDto: RegisterCompanyDto!): RegisterCompanyRes!
+  activateCompany(activationCompanyDto: ActivationCompanyDto!): ActivationCompanyResponse!
+  loginCompany(loginCompanyDto: LoginCompanyDto!): LoginCompanyResponse!
+  logoutCompany: LogoutCompanyResponse!
+  forgotPasswordCompany(forgotPasswordDto: ForgotPasswordCompanyDto!): ForgotPasswordCompanyResponse!
+  resetCompanyPassword(resetPasswordDto: ResetPasswordDto!): ResetPasswordCompanyResponse!
+  createVacancy(createVacancyDto: CreateVacancyDto!): CreateVacansyResponse!
+  updateVacancy(vacany_id: String!, vacanyDto: UpdateVacancyDto!): UpdateVacancyResponse!
+  deleteVacancy(vacany_id: String!): DeleteVacancyReponse!
+  addHardSkillTests(tests: HardSkillTestsDto!): CreateHardSkillTestResponse!
+  sendMessageAsCompany(sendMessageDto: SendMessageDto!): sendMessageRes!
+}
+
+input RegisterDto {
+  fullName: String!
+  email: String!
+  password: String!
+  position: String!
+}
+
+input ActivationDto {
+  activationToken: String!
+  activationCode: String!
+}
+
+input LoginDto {
+  email: String!
+  password: String!
+}
+
+input ForgotPasswordDto {
+  email: String!
+}
+
+input ResetPasswordDto {
+  activationToken: String!
+  password: String!
+}
+
+input UpdateProfileDto {
+  fullName: String
+  position: String
+  about: String
+  level: UserLevel! = Junior
+  location: String
+  experience: Int
+}
+
+input UserEducationDto {
+  degree: String!
+  field_of_study: String!
+  institution: String!
+  startDate: String!
+  description: String
+  type_of_education: String
+  endDate: String
+}
+
+input ProjectOfUserDto {
+  project_title: String!
+  used_technologies: [String!]!
+  description: String!
+}
+
+input SoftSkillsDto {
+  type: [String!]!
+}
+
+input HardSkillDto {
+  type: [String!]!
+}
+
+input CertificateDto {
+  certificate_title: String!
+  description: String
+  startDate: Timestamp!
+  endDate: Timestamp
+}
+
+input LanguageDto {
+  level: LanguageLevel!
+  language: String!
+}
+
+input UserSocialMediaDto {
+  platform: String!
+  profile_link: String!
+}
+
+input RegisterCompanyDto {
+  email: String!
+  password: String!
+  company_name: String!
+  phone_number: String!
+  location: String!
+}
+
+input ActivationCompanyDto {
+  activationToken: String!
+  activationCode: String!
+}
+
+input LoginCompanyDto {
+  email: String!
+  password: String!
+}
+
+input ForgotPasswordCompanyDto {
+  email: String!
+}
+
+input CreateVacancyDto {
+  position: String!
+  level: Level! = Junior
+  hard_requirements: [String!]! = []
+  soft_requirements: [String!]! = []
+  work_start_hour: String!
+  work_end_hour: String!
+  description: String
+  language_requirements: [String!]
+  hard_skill_tests: Int
+  soft_skill_tests: Int
+}
+
+input UpdateVacancyDto {
+  position: String
+  level: Level
+  hard_requirements: [String!]
+  soft_requirements: [String!]
+  work_start_hour: String
+  work_end_hour: String
+  description: String
+}
+
+input HardSkillTestsDto {
+  name: String!
+  hardSkillNumber: Int!
+  tests: [TestItems!]!
+}
+
+input TestItems {
+  question: String!
+  options: [String!]!
+  correctAnswer: Int!
+}
+
+input SendMessageDto {
+  senderId: String!
+  receiverId: String!
+  content: String!
+}

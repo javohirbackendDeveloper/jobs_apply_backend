@@ -13,8 +13,6 @@ import { join } from 'path';
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
-      cache: true,
-      expandVariables: true,
     }),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({

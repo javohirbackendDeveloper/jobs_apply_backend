@@ -14,7 +14,7 @@ import {
   UpdateProfileDto,
 } from './dtos/user.dto';
 import { Request, Response } from 'express';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UserData } from './types/user.interface';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
