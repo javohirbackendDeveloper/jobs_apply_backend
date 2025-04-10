@@ -11,7 +11,7 @@ import { join } from 'path';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
+      envFilePath: '.env',
       isGlobal: true,
       cache: true,
       expandVariables: true,
