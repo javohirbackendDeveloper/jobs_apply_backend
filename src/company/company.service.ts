@@ -12,7 +12,7 @@ import {
   RegisterCompanyDto,
   ResetCompanyPasswordDto,
 } from './dto/company.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';

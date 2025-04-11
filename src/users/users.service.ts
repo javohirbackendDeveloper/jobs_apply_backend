@@ -14,7 +14,6 @@ import {
   UpdateProfileDto,
 } from './dtos/user.dto';
 import { Request, Response } from 'express';
-import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UserData } from './types/user.interface';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
@@ -31,6 +30,7 @@ import { LanguageDto } from './dtos/Language.type';
 import { UserSocialMediaDto } from './dtos/socialMedia';
 import { Compare_candidates } from './utils/compare_candidated';
 import { User } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 @Injectable()
 export class UsersService {
   constructor(
