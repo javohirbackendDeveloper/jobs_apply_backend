@@ -29,7 +29,6 @@ import { CertificateDto } from './dtos/Certificates.dto';
 import { LanguageDto } from './dtos/Language.type';
 import { UserSocialMediaDto } from './dtos/socialMedia';
 import { Compare_candidates } from './utils/compare_candidated';
-import { User } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   ActivationResponse,
@@ -39,6 +38,7 @@ import {
 import { GetVacansiesResponse } from 'src/company/types/company.types';
 import { GetVacansiesResponseForUsers } from './types/vacancy.type';
 import { GetHardSkillTestsRes } from './types/hardSkills.type';
+import { User } from '@prisma/client';
 @Injectable()
 export class UsersService {
   constructor(
