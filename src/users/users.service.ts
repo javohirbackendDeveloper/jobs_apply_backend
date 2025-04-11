@@ -38,7 +38,9 @@ import {
 import { GetVacansiesResponse } from 'src/company/types/company.types';
 import { GetVacansiesResponseForUsers } from './types/vacancy.type';
 import { GetHardSkillTestsRes } from './types/hardSkills.type';
+// import { User } from '@prisma/client';
 import { User } from '@prisma/client';
+
 @Injectable()
 export class UsersService {
   constructor(
