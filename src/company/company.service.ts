@@ -27,6 +27,14 @@ import {
 } from './dto/announcement.dto';
 import { CompanyChats } from './types/chat.tyoes';
 import { SendMessageDto } from './dto/chat.dto';
+import {
+  ActivationCompanyResponse,
+  GetOneVacancyResponse,
+  GetSubmittedUsersRes,
+  GetVacansiesResponse,
+  ResetPasswordCompanyResponse,
+  UpdateVacancyResponse,
+} from './types/company.types';
 // import { ChatGateway } from 'src/chat/chat.provider';
 
 @Injectable()
@@ -107,7 +115,7 @@ export class CompanyService {
   async activateCompany(
     activationDto: ActivationCompanyDto,
     response: Response,
-  ) {
+  ): Promise<ActivationCompanyResponse> {
     const { activationCode, activationToken } = activationDto;
 
     const verifyToken = this.jwtService.verify(activationToken, {
@@ -131,7 +139,7 @@ export class CompanyService {
       },
     });
 
-    return { company, response };
+    return { company };
   }
 
   async login(loginDto: LoginCompanyDto) {
@@ -216,7 +224,9 @@ export class CompanyService {
     return { message: 'Please check your email to reset your password' };
   }
 
-  async resetCompanyPassword(resetPasswordDto: ResetCompanyPasswordDto) {
+  async resetCompanyPassword(
+    resetPasswordDto: ResetCompanyPasswordDto,
+  ): Promise<ResetPasswordCompanyResponse> {
     const { password, activationToken } = resetPasswordDto;
 
     const decode = this.jwtService.decode(activationToken);
@@ -269,7 +279,9 @@ export class CompanyService {
     return { message: 'Vacancy created successfully' };
   }
 
-  async getAllVacansies(company_id: string) {
+  async getAllVacansies(
+    company_id: string,
+  ): Promise<GetVacansiesResponse | any> {
     if (!company_id) {
       throw new BadRequestException('Please login again to continue');
     }
@@ -289,7 +301,9 @@ export class CompanyService {
     return { vacansies };
   }
 
-  async getOneVacancy(vacansy_id: string) {
+  async getOneVacancy(
+    vacansy_id: string,
+  ): Promise<GetOneVacancyResponse | any> {
     if (!vacansy_id) {
       throw new BadRequestException('Please give the vacancy_id');
     }
@@ -308,7 +322,10 @@ export class CompanyService {
     return { vacancy, company };
   }
 
-  async updateVacancy(vacancyDto: UpdateVacancyDto, vacancy_id: string) {
+  async updateVacancy(
+    vacancyDto: UpdateVacancyDto,
+    vacancy_id: string,
+  ): Promise<UpdateVacancyResponse | any> {
     const vacancy = await this.prisma.vacansies.update({
       where: { id: vacancy_id },
       data: { ...vacancyDto },
@@ -318,7 +335,7 @@ export class CompanyService {
       throw new BadRequestException('This vacancy not found');
     }
 
-    return vacancy;
+    return { vacancy };
   }
 
   async deleteVacancy(vacancy_id: string, req: Request) {
@@ -376,7 +393,9 @@ export class CompanyService {
 
   // GET CANDIDATE'S DATAS WHO ARE APPLIED FOR VACANCY
 
-  async getSUbmittedCandidates(vacancyId: string) {
+  async getSUbmittedCandidates(
+    vacancyId: string,
+  ): Promise<GetSubmittedUsersRes | any> {
     const vacancy = await this.prisma.vacansies.findUnique({
       where: { id: vacancyId },
     });
@@ -394,7 +413,9 @@ export class CompanyService {
     return { candidates: submitted_candidates };
   }
 
-  async getPassedToHardSkill(vacancyId: string) {
+  async getPassedToHardSkill(
+    vacancyId: string,
+  ): Promise<GetSubmittedUsersRes | any> {
     const vacancy = await this.prisma.vacansies.findUnique({
       where: { id: vacancyId },
     });
@@ -412,7 +433,9 @@ export class CompanyService {
     return { candidates: passedToHardSkills };
   }
 
-  async getPassedToSoftSkill(vacancyId: string) {
+  async getPassedToSoftSkill(
+    vacancyId: string,
+  ): Promise<GetSubmittedUsersRes | any> {
     const vacancy = await this.prisma.vacansies.findUnique({
       where: { id: vacancyId },
     });

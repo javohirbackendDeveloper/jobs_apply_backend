@@ -31,6 +31,14 @@ import { UserSocialMediaDto } from './dtos/socialMedia';
 import { Compare_candidates } from './utils/compare_candidated';
 import { User } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  ActivationResponse,
+  ResetPasswordResponse,
+  UpdateProfileResponse,
+} from './types/user.type';
+import { GetVacansiesResponse } from 'src/company/types/company.types';
+import { GetVacansiesResponseForUsers } from './types/vacancy.type';
+import { GetHardSkillTestsRes } from './types/hardSkills.type';
 @Injectable()
 export class UsersService {
   constructor(
@@ -97,7 +105,10 @@ export class UsersService {
     return { token, activationCode };
   }
 
-  async activateUser(activationDto: ActivationDto, response: Response) {
+  async activateUser(
+    activationDto: ActivationDto,
+    response: Response,
+  ): Promise<ActivationResponse> {
     const { activationCode, activationToken } = activationDto;
 
     const verifyToken = this.jwtService.verify(activationToken, {
@@ -119,7 +130,7 @@ export class UsersService {
       },
     });
 
-    return { user, response };
+    return { user };
   }
 
   async login(loginDto: LoginDto) {
@@ -202,7 +213,9 @@ export class UsersService {
     return { message: 'Please check your email to reset your password' };
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<ResetPasswordResponse> {
     const { password, activationToken } = resetPasswordDto;
 
     const decode = await this.jwtService.decode(activationToken);
@@ -220,7 +233,10 @@ export class UsersService {
     return { user };
   }
 
-  async updateProfile(updateProfileDto: UpdateProfileDto, req: Request) {
+  async updateProfile(
+    updateProfileDto: UpdateProfileDto,
+    req: Request,
+  ): Promise<UpdateProfileResponse> {
     const currentUser = req.user;
 
     if (!currentUser) {
@@ -386,7 +402,7 @@ export class UsersService {
 
   // APPLY FOR THE VACANSIES
 
-  async getVacansies() {
+  async getVacansies(): Promise<GetVacansiesResponse | any> {
     const allVacansies = await this.prisma.vacansies.findMany({
       orderBy: { createdAt: 'desc' },
     });
@@ -444,7 +460,9 @@ export class UsersService {
     };
   }
 
-  async searchVacansyByPosition(position: string) {
+  async searchVacansyByPosition(
+    position: string,
+  ): Promise<GetVacansiesResponseForUsers | any> {
     try {
       if (!position || position.trim() === '') {
         const allVacansies = await this.prisma.vacansies.findMany({
@@ -474,7 +492,10 @@ export class UsersService {
   }
   // SOLVING HARD SKILL TESTS
 
-  async getVacancyTests(vacancyId: string, hardSkillToken: string) {
+  async getVacancyTests(
+    vacancyId: string,
+    hardSkillToken: string,
+  ): Promise<GetHardSkillTestsRes | any> {
     const decodedToken = await this.jwtService.decode(hardSkillToken);
     if (!decodedToken || decodedToken.exp * 1000 < Date.now()) {
       throw new BadRequestException('Siz testlarni ishlashga kechikdingiz');
